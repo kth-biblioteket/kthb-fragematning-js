@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  web:
+    image: '${IMAGENAME}'
+    build:
+      context: .
+    ports:
+      - "${HOSTPORT}:8000"
+  mariadb:
+    image: 'mariadb:10.6'
+    environment:
+      MARIADB_ROOT_PASSWORD: root_password
+      MARIADB_USER: fragematning
+      MARIADB_PASSWORD: fragematning
+      MARIADB_DATABASE: fragematning
+      TZ: Europe/Stockholm
+    volumes:
+      - "${DBHOSTPATH}:/var/lib/mysql"
