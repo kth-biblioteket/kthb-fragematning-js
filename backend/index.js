@@ -8,7 +8,7 @@ const config = require('./config.json');
 const jsonexport = require('jsonexport/dist')
 
 const app = express();
-app.use(config.app_path, express.static(path.join(__dirname, "/frontend/dist")));
+app.use(config.app_path, express.static(__dirname + "/frontend/dist")));
 //app.use(express.static('../frontend/dist'));
 app.use(express.json());
 
