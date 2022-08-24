@@ -48,7 +48,6 @@ function formatEntry (entry) {
 }
 
 (async function () {
-    console.log("start")
     await db.pquery(`
         CREATE TABLE IF NOT EXISTS categories (
             id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -290,12 +289,10 @@ apiRoutes.get('/auth', basicAuthMW, (req, res) => {
 });
 
 apiRoutes.get('/admin', basicAuthMW, (req, res) => {
-    console.log("admin")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
 apiRoutes.get(/^\/\w+$/, (req, res) => {
-    console.log("test")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
