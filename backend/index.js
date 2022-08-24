@@ -287,10 +287,12 @@ app.get('/auth', basicAuthMW, (req, res) => {
 });
 
 app.get('/admin', basicAuthMW, (req, res) => {
+    console.log("admin")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
 app.get(/^\/\w+$/, (req, res) => {
+    console.log("test")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
