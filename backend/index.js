@@ -8,6 +8,7 @@ const config = require('./config.json');
 const jsonexport = require('jsonexport/dist')
 
 const app = express();
+const apiRoutes = express.Router();
 app.use(config.app_path, express.static(__dirname + "/frontend/dist"));
 //app.use(express.static('../frontend/dist'));
 app.use(express.json());
