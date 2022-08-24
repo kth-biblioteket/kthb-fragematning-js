@@ -8,7 +8,8 @@ const config = require('./config.json');
 const jsonexport = require('jsonexport/dist')
 
 const app = express();
-app.use(express.static('../frontend/dist'));
+app.use(config.app_path, express.static(path.join(__dirname, "/frontend/dist")));
+//app.use(express.static('../frontend/dist'));
 app.use(express.json());
 
 // Överflödigt då Apache på Lafand numera sköter detta.  TODO:
@@ -86,7 +87,7 @@ function formatEntry (entry) {
         CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci`);
 })();
 
-app.get('/categories', async (req, res) => {
+apiRoutes.get('/categories', async (req, res) => {
     try {
         const categories = await db.pquery('SELECT * FROM categories ORDER BY sort_order, name');
 
@@ -104,7 +105,7 @@ app.get('/categories', async (req, res) => {
     }
 });
 
-app.put('/categories', basicAuthMW, async (req, res) => {
+apiRoutes.put('/categories', basicAuthMW, async (req, res) => {
     try {
         for (row of req.body) {
             await db.pquery('INSERT INTO categories SET ? ON DUPLICATE KEY UPDATE ? ', [row, row]);
@@ -116,7 +117,7 @@ app.put('/categories', basicAuthMW, async (req, res) => {
     }
 });
 
-app.delete('/categories/:id', basicAuthMW, async (req, res) => {
+apiRoutes.delete('/categories/:id', basicAuthMW, async (req, res) => {
     try {
         await db.pquery('DELETE FROM categories WHERE id = ?', req.params.id);
         await db.pquery('DELETE FROM questions WHERE category = ?', req.params.id);
@@ -127,7 +128,7 @@ app.delete('/categories/:id', basicAuthMW, async (req, res) => {
     }
 });
 
-app.get('/questions', async (req, res) => {
+apiRoutes.get('/questions', async (req, res) => {
     try {
         const userFilter = req.query.user
               ? `WHERE a.user IS NULL OR FIND_IN_SET(${db.escape(req.query.user)}, a.user )`
@@ -152,7 +153,7 @@ app.get('/questions', async (req, res) => {
     }
 });
 
-app.put('/questions', basicAuthMW, async (req, res) => {
+apiRoutes.put('/questions', basicAuthMW, async (req, res) => {
     try {
         for (row of req.body) {
             await db.pquery('INSERT INTO questions SET ? ON DUPLICATE KEY UPDATE ? ', [row, row]);
@@ -164,7 +165,7 @@ app.put('/questions', basicAuthMW, async (req, res) => {
     }
 });
 
-app.delete('/questions/:id', basicAuthMW, async (req, res) => {
+apiRoutes.delete('/questions/:id', basicAuthMW, async (req, res) => {
     try {
         await db.pquery('DELETE FROM questions WHERE id = ?', req.params.id);
         res.type('text/plain').send();
@@ -174,7 +175,7 @@ app.delete('/questions/:id', basicAuthMW, async (req, res) => {
     }
 });
 
-app.get('/entries', async (req, res) => {
+apiRoutes.get('/entries', async (req, res) => {
     try {
         const columnsMap = {
             'user': 'a.user',
@@ -258,7 +259,7 @@ app.get('/entries', async (req, res) => {
     }
 });
 
-app.post('/add', async (req, res) => {
+apiRoutes.post('/add', async (req, res) => {
     try {
         const result = await db.pquery('INSERT INTO entries SET ?', req.body);
         const entry = await db.pquery(`
@@ -273,7 +274,7 @@ app.post('/add', async (req, res) => {
     }
 });
 
-app.get('/undo/:id', async (req, res) => {
+apiRoutes.get('/undo/:id', async (req, res) => {
     try {
         await db.pquery('DELETE FROM entries WHERE id = ?', req.params.id);
         res.type('text/plain').send();
@@ -283,18 +284,20 @@ app.get('/undo/:id', async (req, res) => {
     }
 });
 
-app.get('/auth', basicAuthMW, (req, res) => {
+apiRoutes.get('/auth', basicAuthMW, (req, res) => {
     res.type('text/plain').send();
 });
 
-app.get('/admin', basicAuthMW, (req, res) => {
+apiRoutes.get('/admin', basicAuthMW, (req, res) => {
     console.log("admin")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
-app.get(/^\/\w+$/, (req, res) => {
+apiRoutes.get(/^\/\w+$/, (req, res) => {
     console.log("test")
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
+
+app.use(config.app_path, apiRoutes);
 
 app.listen(config.port);
