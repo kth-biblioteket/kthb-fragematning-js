@@ -294,4 +294,4 @@ app.get(/^\/\w+$/, (req, res) => {
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
-app.listen(config.port, '0.0.0.0');
+app.listen(config.port);
