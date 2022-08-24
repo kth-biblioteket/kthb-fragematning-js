@@ -100,7 +100,7 @@ export default class {
         if (!row.entry_count) {
             const delBtn = this.createDelBtn(() => {
                 if (row.id) {
-                    del('/questions/' + row.id).then(() => this.update());
+                    del('questions/' + row.id).then(() => this.update());
                 } else {
                     this.questions.splice(
                         this.questions.findIndex(q => q === question), 1);
