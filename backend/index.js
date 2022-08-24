@@ -46,6 +46,7 @@ function formatEntry (entry) {
 }
 
 (async function () {
+    console.log("start")
     await db.pquery(`
         CREATE TABLE IF NOT EXISTS categories (
             id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
