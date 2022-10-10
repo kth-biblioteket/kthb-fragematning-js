@@ -116,7 +116,7 @@ export default class {
             `<div>
                 <div class="form-inputs">
                     <div>
-                        <label for="type">*Typ:</label>
+                        <label for="type">*Kanal:</label>
                         <select id="type" name="type">
                             <option></option>
                             ${ config.types.map(x => `<option>${x}</option>`).join() }
