@@ -151,11 +151,11 @@ export default class {
         const location = this.form.elements.location;
 
         type.addEventListener('change', () => {
-            const unspec = 'ospecificerad';
+            const unspec = 'Ospecificerat';
             const element = Array.from(location.options).find(opt => opt.innerText === unspec);
 
             // TODO: Bör inte vara hårdkodat.
-            if (['infodisk', 'ute i biblioteket'].includes(type.value)) {
+            if (['Lånedisk', 'Ute i rummet'].includes(type.value)) {
                 if (location.value === unspec) {
                     location.value = '';
                     this.root.location = null;
