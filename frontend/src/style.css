@@ -337,7 +337,7 @@ button {
 
 .form-inputs button:hover,
 .admin-functions button:hover {
-    color: var(--key-color);
+    color: #c7c7c7;
 }
 
 
@@ -401,7 +401,7 @@ button {
 }
 
 #last-entry button:hover {
-    color: var(--key-color);
+    color: #c7c7c7;
 }
 
 #last-entry em {
@@ -417,10 +417,10 @@ button {
 #last-entry.first-last-entry {
     background-color: var(--key-color);
     border-bottom: 2px solid #333;
-    color: #333;
+    color: white;
 }
 #last-entry.first-last-entry em {
-    color: #333;
+    color: white;
 }
 
 #info {
