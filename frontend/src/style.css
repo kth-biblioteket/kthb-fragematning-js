@@ -405,7 +405,7 @@ button {
 }
 
 #last-entry em {
-    color: var(--key-color);
+    color: white;
     font-family: var(--semi-bold-font), Arial, sans-serif;
     font-style: normal;
 }
