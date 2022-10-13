@@ -263,7 +263,7 @@ input, select, textarea {
     font-family: var(--base-font);
     font-size: 1rem;
     height: 1.5em;
-    padding: 0 0.5em;
+    padding: 0 5px;
     vertical-align: top;
 }
 
@@ -284,7 +284,7 @@ input::placeholder {
 }
 
 #date, textarea#comment {
-    min-width: 200px;
+    min-width: 190px;
 }
 
 select {
