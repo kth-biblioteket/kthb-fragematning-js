@@ -123,7 +123,7 @@ export default class {
                         </select>
                     </div>
                     <div>
-                        <label for="location">*Plats:</label>
+                        <label for="location">*Frågan gäller:</label>
                         <select id="location" name="location">
                             <option></option>
                             ${ config.locations.map(x => `<option>${x}</option>`).join() }
