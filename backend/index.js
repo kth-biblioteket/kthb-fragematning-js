@@ -6,11 +6,27 @@ const util = require('util');
 const basicAuth = require('express-basic-auth');
 const config = require('./config.json');
 const jsonexport = require('jsonexport/dist')
+const cookieParser = require("cookie-parser");
+const verifyAdmin = require('./VerifyAdmin');
+const verify = require('./Verify');
+const verifyToken = require('./VerifyToken');
+const jwt =  require("jsonwebtoken");
 
 const app = express();
 const apiRoutes = express.Router();
+
+app.use(cookieParser());
+
+//Innan static files(dvs hela applikationen) skickas till klienten så görs en check av token
+app.use(function(req, res, next) {
+    if('/fragematning/api/v1/login' == req.url || '/fragematning/api/v1/logout' == req.url) {
+        next()
+    }
+    verifyToken(req, res, next)
+});
+
 app.use(config.app_path, express.static("../frontend/dist"));
-//app.use(express.static('../frontend/dist'));
+
 app.use(express.json());
 
 // Överflödigt då Apache på Lafand numera sköter detta.  TODO:
@@ -18,12 +34,6 @@ app.use(express.json());
 // sätt runt detta. "Option AllowSendGZip" verkar inte hjälpa; testa
 // att skicka datan som JS eller nåt i stället för JSON?
 app.use(compression());
-
-const basicAuthMW = basicAuth({
-    users: config.users,
-    challenge: true,
-    realm: 'fragematning'
-});
 
 const db = mysql.createPool(config.db);
 
@@ -47,6 +57,7 @@ function formatEntry (entry) {
     return entry;
 }
 
+//Skapa tabeller om de inte finns
 (async function () {
     await db.pquery(`
         CREATE TABLE IF NOT EXISTS categories (
@@ -87,6 +98,42 @@ function formatEntry (entry) {
         CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci`);
 })();
 
+//Login som anropas från login.html
+apiRoutes.post("/api/v1/login", async function login(req, res) {
+    let jwttoken
+    try {
+        //Om lyckad inloggning så sätt en jwt-cookie
+        if(req.body.password === config.users[req.body.username] ){
+            jwttoken = jwt.sign({ id: req.body.username, role: config.roles[req.body.username]  }, config.secret, {
+                expiresIn: "7d"
+            });
+        } else {
+            res.status(401)
+            return res.json({ message: "wrong credentials" });
+        }
+        res
+        .cookie("jwt", jwttoken, {
+            maxAge: 60 * 60 * 24 * 7 * 1000,
+            sameSite: 'lax',
+            httpOnly: true,
+            secure: config.node_env !== "development",
+        })
+        .status(200)
+        .json({ message: "Success" });
+    } catch(err) {
+        res.status(401)
+        res.json({ message: err.message });
+    }
+});
+
+//Logout som anropas från index.html
+apiRoutes.post("/api/v1/logout", async function logout(req, res) {
+    res
+    .clearCookie("jwt")
+    .status(200)
+    .json({ message: "Success" });
+});
+
 apiRoutes.get('/categories', async (req, res) => {
     try {
         const categories = await db.pquery('SELECT * FROM categories ORDER BY sort_order, name');
@@ -105,7 +152,8 @@ apiRoutes.get('/categories', async (req, res) => {
     }
 });
 
-apiRoutes.put('/categories', basicAuthMW, async (req, res) => {
+//Endast admin
+apiRoutes.put('/categories', verifyAdmin, async (req, res) => {
     try {
         for (row of req.body) {
             await db.pquery('INSERT INTO categories SET ? ON DUPLICATE KEY UPDATE ? ', [row, row]);
@@ -117,7 +165,8 @@ apiRoutes.put('/categories', basicAuthMW, async (req, res) => {
     }
 });
 
-apiRoutes.delete('/categories/:id', basicAuthMW, async (req, res) => {
+//Endast admin
+apiRoutes.delete('/categories/:id', verifyAdmin, async (req, res) => {
     try {
         await db.pquery('DELETE FROM categories WHERE id = ?', req.params.id);
         await db.pquery('DELETE FROM questions WHERE category = ?', req.params.id);
@@ -153,7 +202,7 @@ apiRoutes.get('/questions', async (req, res) => {
     }
 });
 
-apiRoutes.put('/questions', basicAuthMW, async (req, res) => {
+apiRoutes.put('/questions', verify, async (req, res) => {
     try {
         for (row of req.body) {
             await db.pquery('INSERT INTO questions SET ? ON DUPLICATE KEY UPDATE ? ', [row, row]);
@@ -165,7 +214,7 @@ apiRoutes.put('/questions', basicAuthMW, async (req, res) => {
     }
 });
 
-apiRoutes.delete('/questions/:id', basicAuthMW, async (req, res) => {
+apiRoutes.delete('/questions/:id', verify, async (req, res) => {
     try {
         await db.pquery('DELETE FROM questions WHERE id = ?', req.params.id);
         res.type('text/plain').send();
@@ -284,15 +333,26 @@ apiRoutes.get('/undo/:id', async (req, res) => {
     }
 });
 
-apiRoutes.get('/auth', basicAuthMW, (req, res) => {
-    res.type('text/plain').send();
+//auktorisera vyerna från applikationen
+apiRoutes.get('/authorize', (req, res) => {
+    let token = req.cookies.jwt
+    if (!token)
+        return res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/login.html');
+    jwt.verify(token, config.secret, async function (err, decoded) {
+        if (err) {
+            res.clearCookie("jwt")
+            res.status(401).send({ auth: false, message: 'Failed to authenticate token, ' + err.message });
+        }
+         return res.status(200).send({ role: decoded.role});
+    });
+
 });
 
-apiRoutes.get('/admin', basicAuthMW, (req, res) => {
+apiRoutes.get('/admin', (req, res) => {
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
-apiRoutes.get(/^\/\w+$/, (req, res) => {
+apiRoutes.get(/^\/\w+$/,  (req, res) => {
     res.sendFile(__dirname.replace(/\w*$/, '') + 'frontend/dist/index.html');
 });
 
