@@ -15,6 +15,10 @@ module.exports = {
             template: 'src/index.html',
             minify: { removeRedundantAttributes: false }
         }),
+        new HtmlWebpackPlugin({
+            template: 'src/login.html',
+            filename: 'login.html'
+        }),
         new MiniCssExtractPlugin()
     ],
     optimization: {

@@ -3,7 +3,7 @@
 import { install } from 'resize-observer';
 if (!window.ResizeObserver) install();
 
-import { get, countBy, groupBy, percentage, createTable } from './helpers.js';
+import { get, countBy, groupBy, percentage, createTable, logout } from './helpers.js';
 
 import {
     ArcElement,
@@ -239,7 +239,7 @@ export default class {
         const recentComments = entries
               .filter(e => e.comment)
               .sort((a, b) => new Date(b.question_date) - new Date(a.question_date))
-              .slice(0, 20);
+              .slice(0, 40);
 
         if (recentComments.length)
             this.addTable(

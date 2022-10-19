@@ -15,6 +15,7 @@ const config = require('./config.json');
 const root = {
     title: config.title || 'Frågemätning',
     header: document.querySelector('header'),
+    kth_view: document.getElementById('kth-view'),
     main: document.querySelector('main'),
     nav: document.querySelector('nav'),
     menu: document.createElement('ol'),
@@ -67,19 +68,34 @@ availableViews.forEach((View) => {
     root.menu.appendChild(view.menuItem);
 
     view.open = async () => {
-        if (view.restricted)
-            await get('auth', null, false).catch(xhr => {
-                if (xhr.status === 401)
-                    alert('Inloggningen misslyckades!');
-                throw xhr;
-            });
+        let authorized = true
+        await get('authorize', null, false)
+            .catch(xhr => {
+                if (xhr.status === 401){
+                    alert('Not authorized');
+                    return location.href = 'fragematning'
+                }
+            })
+            .then(response => {
+                //Restricted = true => vyn ska visas endast för admin
+                if (view.restricted) {
+                    if (response.role !== 'admin') {
+                        authorized = false;
+                        alert('Not authorized');
+                        return location.href = 'fragematning'
+                    }
+                } 
+            })
 
-        root.activeMenuItem?.classList.remove('active-menu-item');
-        view.menuItem.classList.add('active-menu-item');
-        root.activeMenuItem = view.menuItem;
-        root.header.innerHTML = `<h1>${view.title}</h1>`;
-        root.main.innerHTML = '';
-        return view.render().then(element => root.main.appendChild(element));
+        if (authorized) {
+            root.activeMenuItem?.classList.remove('active-menu-item');
+            view.menuItem.classList.add('active-menu-item');
+            root.activeMenuItem = view.menuItem;
+            //root.header.innerHTML = `<h2>${view.title}</h2>`;
+            root.kth_view.innerHTML = `${view.title}`
+            root.main.innerHTML = '';
+            return view.render().then(element => root.main.appendChild(element));
+        }
     }
 
     view.menuItem.addEventListener('click', () => {

@@ -1,5 +1,5 @@
 
-import { get, post, toLocalizedDateString, groupBy } from './helpers.js';
+import { get, post, toLocalizedDateString, groupBy, logout } from './helpers.js';
 
 const config = require('./config.json');
 
@@ -7,9 +7,10 @@ export default class {
     constructor (root) {
         this.root = root;
         this.path = '/';
-        this.title = `${root.title}, ${root.user}`;
+        this.title = `${root.title}`;
         this.menuItemText = root.title;
         this.inProcess = null;
+        this.restricted = false;
     }
 
     async submit (button) {

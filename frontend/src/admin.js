@@ -1,5 +1,5 @@
 
-import { get, put, del, createTable } from './helpers.js';
+import { get, put, del, createTable, logout } from './helpers.js';
 
 // Allt detta är "ad hoc".
 

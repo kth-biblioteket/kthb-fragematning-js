@@ -146,7 +146,7 @@ body > div {
 }
 
 body > div > div {
-    margin: 0 1rem 1rem 1rem;
+    margin: 0 1rem 1rem 2rem;
     flex: 1 0 0;
 }
 
@@ -176,6 +176,7 @@ main {
 h2 {
     font-family: var(--semi-bold-font), Arial, sans-serif;
     font-size: 1.2rem;
+    font-weight: 600;
 }
 
 a {
@@ -184,19 +185,30 @@ a {
 }
 
 .kth-header {
-   margin-top: 30px;
+   margin-top: 25px;
 }
 
 .kth-header .navbar-brand {
     display: flex;
+    margin-bottom: 20px;
+}
+
+.kth-header .navbar-brand:hover {
+    color: black;
  }
 
 #kth-sitename {
     font-weight: 600;
-    font-size: 1.25em;
+    font-size: 1em;
     padding-left: 30px;
     top: -5px;
     position: relative;
+}
+
+#gradientBorder {
+    height: 6px;
+    background-image: linear-gradient(to left, #005ea4, #5c98c4);
+    margin-top: 10px;
 }
 
 .date-time {

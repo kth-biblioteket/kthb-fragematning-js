@@ -1,5 +1,5 @@
 
-import { get, createTable } from './helpers.js';
+import { get, createTable, logout } from './helpers.js';
 
 export default class {
     constructor (root) {
