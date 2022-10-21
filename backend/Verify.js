@@ -11,7 +11,7 @@ function verify(req, res, next) {
         jwt.verify(token, config.secret, async function (err, decoded) {
             if (err) {
                 res.clearCookie("jwt")
-                res.status(401).send({ auth: false, message: 'Failed to authenticate token, ' + err.message });
+                return res.status(401).send({ auth: false, message: 'Failed to authenticate token, ' + err.message });
             }
 
             req.username = decoded.id;   

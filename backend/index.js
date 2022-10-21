@@ -11,11 +11,19 @@ const verifyAdmin = require('./VerifyAdmin');
 const verify = require('./Verify');
 const verifyToken = require('./VerifyToken');
 const jwt =  require("jsonwebtoken");
+const cors = require('cors');
 
 const app = express();
 const apiRoutes = express.Router();
 
 app.use(cookieParser());
+
+var corsOptions = {
+    origin: config.allowed_origins,
+    optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions));
 
 //Innan static files(dvs hela applikationen) skickas till klienten så görs en check av token
 app.use(function(req, res, next) {
